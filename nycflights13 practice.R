@@ -120,12 +120,74 @@ ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
 flights %>% 
   group_by(year, month, day) %>% 
   summarise(mean = mean(dep_delay, na.rm = TRUE))
-#planes that have highest average delays (identified by tail number)
+
+not_cancelled <- flights %>% 
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(mean = mean(dep_delay))
+
 delays <- not_cancelled %>% 
   group_by(tailnum) %>% 
   summarise(
     delay = mean(arr_delay)
   )
-
+#5.6.3 Counts whenever you do aggregatation, include count (n()) OR (sum(!is.na(x))) to make sure
+#you're not drawing conclusions based on small amnt of data
+#planes that have highest average delays (identified by tail number)
 ggplot(data = delays, mapping = aes(x = delay)) + 
   geom_freqpoly(binwidth = 10)
+#can get more insight if we draw scatterplot of # of delays vs. avg delay:
+delays <- not_cancelled %>% 
+  group_by(tailnum) %>% 
+  summarise(
+    delay = mean(arr_delay, na.rm = TRUE),
+    n = n()
+  )
+
+ggplot(data = delays, mapping = aes(x = n, y = delay)) + 
+  geom_point(alpha = 1/10)
+#often useful to filter out groups w/smallest # of observations
+delays %>% 
+  filter(n > 25) %>% 
+  ggplot(mapping = aes(x = n, y = delay)) +
+  geom_point(alpha = 1/10)
+
+#look at how avg performance of batters in baseball is related to # of times they're at bat
+#number of hits/number of attempts
+batting <- as_tibble(Lahman::Batting)
+view(batting)
+batters <- batting %>% 
+  group_by(playerID) %>% 
+  summarise(
+    ba = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
+    ab = sum(AB, na.rm = TRUE)
+  )
+batters %>% 
+  filter(ab > 100) %>% 
+  ggplot(mapping = aes(x = ab, y = ba)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+#> 'geom_smooth() using method = 'gam' and formula = 'y ~ s (x, bs = "cs")'
+
+#The root mean squared deviation, or standard deviation sd(x), is the standard measure of spread. 
+#The interquartile range IQR(x) and median absolute deviation mad(x) are robust equivalents
+#that may be more useful if you have outliers
+# Why is distance to some destinations more variable than to others?
+not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(distance_sd = sd(distance)) %>% 
+  arrange(desc(distance_sd))
+# When do the first and last flights leave each day?
+not_cancelled %>% 
+  group_by(year, month, day) %>% 
+  summarise(
+    first = min(dep_time),
+    last = max(dep_time))
+
+
+
+#6 Workflows: scripts
+#Cmd/Ctrl + Shift + N opens up the script panel or New File --> R Script
+#Ctrl + Shift + SL Instead of running expression-by-expression, you can also execute the complete script
