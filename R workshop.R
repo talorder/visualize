@@ -3,13 +3,7 @@
 install.packages("tidyverse")
 #always have to run tidyverse package upon restarting
 library(tidyverse)
-#next lets upload the library ggplot2 -- a sample dataset in tidyverse
-library(ggplot2)
 
-#mtcars data frame -- "a data frame refers to a collection of variables (in the columns) and observations (in the rows)
-mtcars
-#our variables include, for instance, miles per gallon (mpg), cylinder (cyl), displacement (in cubic inches) (disp), weight (wt), am (transmission; auto or manual), etc. 
-#we can see all of our variables in the chart by typing "mtcars"
 #we also see a description of the dataset there
 
 #let's start plotting
@@ -17,10 +11,6 @@ mtcars
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = manufacturer, y = displ))
 
-ggplot(data = mtcars) +
-  geom_point(mapping = aes(x = car, y = mpg))
-mtcar     
-mp
 
 #mpg contains observations collected by the US Environmental Protection Agency on 38 models of car
 #two ways to view the dataset
