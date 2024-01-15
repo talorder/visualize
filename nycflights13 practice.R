@@ -191,3 +191,123 @@ not_cancelled %>%
 #6 Workflows: scripts
 #Cmd/Ctrl + Shift + N opens up the script panel or New File --> R Script
 #Ctrl + Shift + SL Instead of running expression-by-expression, you can also execute the complete script
+not_cancelled <- flights %>%  filter(!is.na(dep_delay), !is.na(arr_delay))
+not_cancelled %>% group_by(year, month, day) %>% summarise(mean = mean(dep_delay))
+
+#7 Exploratory Data Analysis
+#to examine the distribution of a categorical variable, use a bar chart
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut))
+#you can compute the observations by using dplyr::count():
+diamonds %>% count(cut)
+
+#to examine the distribution of a continous variable, use a histogram
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.5)
+#you can compute by hand by combining dplyr::count() and ggplot2::cut_width():
+diamonds %>% count(cut_width(carat, 0.5))
+#histograms divide the x-axis into equally spaced bins and use the height of a bar to display the # of observations that fall into each bin
+#the tallest bar shows ~30k observations have a carat value between 0.25 and 0.75(the left and right edges of the bar)
+
+#set width of intervals in a histogram with binwidth argument, which is measure din the units of the x variable
+#ex: this is the graph when we zoom into just diamonds w/a size less than 3 carats and choose a smaller binwidth
+smaller <-diamonds %>% filter(carat < 3)
+ggplot(data = smaller, mapping = aes(x = carat)) +
+  geom_histogram(binwidth = 0.1)
+
+#to overlay multiple histograms in the same plot, use geom_freqpoly(); uses lines instead of bars
+ggplot(data = smaller, mapping = aes(x = carat, color = cut)) +
+  geom_freqpoly(binwidth = 0.1)
+#ask questions and follow up questions about your data, e.g.
+#Which values are the most common? Why?
+#Which values are rare? Why? Does that match your expectations?
+#Can you see any unusual patterns? What might explain them?
+
+#ex:
+ggplot(data = smaller, mapping = aes(x = carat)) +
+  geom_histogram(binwidth = 0.01)
+#Questions: Why are there more diamonds at whole carats and common fractions of carats?
+#Why are there more diamonds slightly to the right of each peak than there are slightly to the left of each peak?
+#Why are there no diamonds bigger than 3 carats?
+
+#clusters of similar values suggest that subgroups exist in your data. To understand subgroups:
+#how are the observations within each cluster similar to each other?
+#how are the observations in separate clusters different from each other?
+#how can you explain or describe the clusters?
+#why might the appearance of clusters be misleading?
+
+ggplot(data = faithful, mapping = aes(x = eruptions)) +
+  geom_histogram(binwidth = 0.25)
+#unusual values
+#to be able to see unusual values, we need to zoom to small values of the y-axis with coord_cartesian()
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = y), binwidth = 0.5) +
+  coord_cartesian(ylim = c(0, 50))
+#also has xlim()
+ggplot(diamonds) +
+  geom_histogram(mapping = aes(x = y), binwidth = 0.5) +
+  coord_cartesian(xlim = c(0, 20))
+#the ylim() lets us see there are three unusual values: 0, ~30, and ~60
+unusual <-diamonds %>% 
+  filter(y < 3 | y >20) %>% 
+  select(price, x, y, z) %>% 
+  arrange(y)
+unusual
+#best practice to repeat analysis without the outliers; but don't drop w/out justification
+#disclose that you removed outliers in your analysis
+
+#7.3.4 exercises
+#explore the distribution of each of the x, y, and z variables in diamonds.
+#distribution of x(length)
+ggplot(data = diamonds, mapping = aes(x = x)) +
+  geom_density() +
+  geom_rug() +
+  labs(title = 'Distribution of x(length)')
+#distribution of y(width)
+ggplot(data = diamonds, mapping = aes(x = y)) +
+  geom_density() +
+  geom_rug() +
+  labs(title = 'Distribution of y(width)')
+#distribution of z(depth)
+ggplot(data = diamonds, mapping = aes(x = z)) +
+  geom_density() +
+  geom_rug() +
+  labs(title = 'Distribution of z(depth)')
+#we see in general there are more smaller diamonds than bigger ones
+#in y and z there are outliers
+
+#explore the distribution of price. Do you discover anything unusual/surprising?
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = price), binwidth = 20)
+#Setting the binwidth to 20, we can see that the price distribution is right-skewed and has many ‘spikes’
+#Most of the diamonds are under 1,000
+#there are no dimaonds in the price range of around 1,500
+#There is also a surge of number of diamonds in the price range of around 4,500
+
+#How many diamonds are 0.99 carat? How many are 1 carat?
+diamonds %>% filter(between(carat, .99, 1.00)) %>% 
+  group_by(carat) %>% summarize(count = n())
+#more 1 carat diamonds (1558) than 0.99 carat (23)
+
+#Compare and contrast coord_cartesian() vs xlim() or ylim() when zooming in on a histogram
+#What happens if you leave binwidth unset?
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = price), binwidth = 20) +
+  coord_cartesian(xlim = c(0,5000), ylim = c(0,700))
+#even when the x and y limit are set to 5000 and 700 respectively, some data beyond those limits is being shown.
+#override this withexpand=false
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = price), binwidth = 20) +
+  coord_cartesian(xlim = c(0,5000), ylim = c(0,700), expand = FALSE)
+#What happens if you try and zoom so only half a bar shows?
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = price), binwidth = 20) +
+  xlim(c(0,5000)) +
+  ylim(c(0,700))
+#With xlim() and ylim() data that are outside of the limits are not shown.
+#missing bin at around $700; for that bin, the height is beyond the y limit of 700
+
+#7.4 Missing Values
+#7.5 Covariation
+#7.6 Patterns and models
+#7.3 ggplot2 calls
