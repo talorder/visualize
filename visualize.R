@@ -18,7 +18,8 @@ ggplot(data = mpg) +
   geom_point(mapping = aes(x = manufacturer, y = displ))
 
 ggplot(data = mtcars) +
-  geom_point(mapping = aes(x = car, y = mpg))
+  geom_point(mapping = aes(x = manufacturer, y = mpg))
+
 mtcar     
 mp
 
@@ -32,7 +33,7 @@ mpg
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy))
 #look at the dataset and choose two variables to plot using what we just learned
-#what does the plot tell you?
+#what does the plot reveal? Does it raise any further questions?
 
 #dictionary
 #ggplot(): sets up the foundation of the graph; it helps define the data you want to use and the overall look of the graph. Once you've done this, you can add more details like different layers, while keeping the basic setup consistent unless you want to change something specifically.
@@ -40,7 +41,7 @@ ggplot(data = mpg) +
 #aes: aesthetic; a function to map variables in your dataset to the visual properties of a plot, e.g., color, size, shape, x and y axes, etc. It helps represent your data visually.
 
 #adding color
-#ggplot has built in colorschemes; let's make "class" a color
+#ggplot has built in color schemes; let's make "class" a color
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, color = class))
 #this also creates a legend for us for "class" or car classification
@@ -49,18 +50,19 @@ ggplot(data = mpg) +
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, size = class))
 #change shape
+#why might changing the shape instead of the color be more accessible?
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, shape = class))
 #change size and color
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, size = class, color = class))
 #on your own, change size and shape
-#look up in the book how to change the names of the x and y axes and legend
-#change name of x and y-axes and legend where x = displ, y = highway, and color the plot by class
+#look up in the book how to change the x-axis label. How might you change the y-axis label and the legend title?
+#change name of x and y-axes and legend where x = displ, y = highway (miles per gallon), and color the plot by class
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, color = class)) + labs(x = "Displacement", y = "Highway (miles per gallon)", color = "Class")
 #add a title
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, color = class)) +
   labs (x = "Displacement", y = "Highway (miles/gallon)", color = "Class", title = "This is My Title")
-
+#

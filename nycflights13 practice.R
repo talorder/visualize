@@ -308,6 +308,32 @@ ggplot(data = diamonds) +
 #missing bin at around $700; for that bin, the height is beyond the y limit of 700
 
 #7.4 Missing Values
+#replace unusual values with missing values using mutate() to replace variable with modified copy
+#OR ifelse() to replace them w/NA
+diamonds2 <- diamonds %>% mutate(y = ifelse(y < 3 | y > 20, NA, y))
+ggplot(data = diamonds2, mapping = aes(x = x, y = y)) + 
+  geom_point()
+
+#Other times you want to understand what makes observations with missing values different to observations with recorded values
+#compare scheduled departure times for cancelled vs. non-canceled times
+
+nycflights13::flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>% 
+  ggplot(mapping = aes(sched_dep_time)) + 
+  geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
 #7.5 Covariation
+#covariation describes the relationship between variables
+#covariation = tendency for values of two or more variables to vary together in a related way
+#best way to spot covariation is to visualize relationship between 2+ variables
+#7.5.1 categorical and continuous variables
+ggplot(data = diamonds, mapping = aes(x = price)) + 
+  geom_freqpoly(mapping = aes(colour = cut), binwidth = 500)
+ggplot(diamonds) + 
+  geom_bar(mapping = aes(x = cut))
 #7.6 Patterns and models
 #7.3 ggplot2 calls
