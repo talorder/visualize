@@ -326,14 +326,79 @@ nycflights13::flights %>%
   ) %>% 
   ggplot(mapping = aes(sched_dep_time)) + 
   geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
+
+diamonds2 <- diamonds %>% 
+  mutate(y = ifelse(y < 3 | y > 20, NA, y))
+ggplot(data = diamonds2, mapping = aes(x = x, y = y)) + 
+  geom_point()
+
+#7.4.1 Exercises
+#1 – What happens to missing values in a histogram? What happens to missing values in a bar chart?
+#Why is there a difference?
+#in geom_histogram() the missing values are removed;
+#in geom_bar() the missing values are counted and treated as a category
+
 #7.5 Covariation
 #covariation describes the relationship between variables
 #covariation = tendency for values of two or more variables to vary together in a related way
 #best way to spot covariation is to visualize relationship between 2+ variables
+
 #7.5.1 categorical and continuous variables
 ggplot(data = diamonds, mapping = aes(x = price)) + 
   geom_freqpoly(mapping = aes(colour = cut), binwidth = 500)
 ggplot(diamonds) + 
   geom_bar(mapping = aes(x = cut))
+
+#display density instead of count
+ggplot(data = diamonds, mapping = aes(x = price, y = ..density..)) + 
+  geom_freqpoly(mapping = aes(colour = cut), binwidth = 500)
+
+#Another alternative to display the distribution of a continuous variable broken down by a categorical variable is the boxplot
+#boxplot: type of visual shorthand for a distribution of values
+#A box that stretches from the 25th percentile of the distribution to the 75th percentile, a distance known as the interquartile range (IQR)
+#In the middle of the box is a line that displays the median, i.e. 50th percentile, of the distribution
+#These three lines give you a sense of the spread of the distribution and whether or not the distribution is symmetric about the median or skewed to one side.
+ggplot(data = diamonds, mapping = aes(x = cut, y = price)) +
+  geom_boxplot()
+
+#ordered factors: categorical variables
+#cut is an ordered factor: fair is worse than good, which is worse than very good and so on
+#Many categorical variables don’t have such an intrinsic order, so you might want to reorder them
+#use the reorder() function
+#You might be interested to know how highway mileage varies across classes
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) +
+  geom_boxplot()
+#reorder() based on median size of hwy
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy))
+#If you have long variable names, geom_boxplot() will work better if you flip it 90°
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy)) +
+  coord_flip()
+#7.5.2 two categorical variables
+#To visualise the covariation between categorical variables,
+#you’ll need to count the number of observations for each combination
+#one way: geom_count()
+ggplot(data = diamonds) +
+  geom_count(mapping = aes(x = cut, y = color))
+#The size of each circle in the plot displays how many observations occurred at each combination of values
+
+#another approach: compute & count with dyplr
+diamonds %>% 
+  count(color, cut)
+#then visualize w/geom_tile() and fill aesthetic
+diamonds %>% 
+  count(color, cut) %>% 
+  ggplot(mapping = aes(x = color, y = cut)) +
+  geom_tile(mapping = aes(fill = n))
+
+
+diamonds %>% count(color, cut) %>% group_by(color) %>%
+  mutate(prop = n / sum(n)) %>%
+  ggplot() +
+  geom_tile(mapping = aes(x = color, y = cut, fill = prop)) +
+  labs(title = 'Distribution of cut within color')
+
+#7.5.3 Two continuous variables
+
 #7.6 Patterns and models
-#7.3 ggplot2 calls
